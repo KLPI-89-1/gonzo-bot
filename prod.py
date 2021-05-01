@@ -18,7 +18,7 @@ from discord_token import api_token
 #   - better export function... maybe use pickle?
 
 #client = discord.Client()
-client = commands.Bot(command_prefix = '!')
+client = commands.Bot(command_prefix = '!klpi ')
 
 loyal_listener = '<@&830141470345920544>'
 alerts_channel = 830121001450471475
@@ -183,7 +183,7 @@ async def backup(ctx):
         showlistf = ""
         showlistf += "Backup generated at: {}\n\n".format(str(datetime.now()))
         for i in showlist:
-            showlistf += "!addshow \"{}\" \"{}\" {} {} {}\n".format(i.name, i.dj, i.day, datetime.strptime(i.starttime, "%H:%M").strftime("%I:%M"), datetime.strptime(i.endtime, "%H:%M").strftime("%H:%M"))
+            showlistf += "!klpi addshow \"{}\" \"{}\" {} {} {}\n".format(i.name, i.dj, i.day, datetime.strptime(i.starttime, "%H:%M").strftime("%H:%M"), datetime.strptime(i.endtime, "%H:%M").strftime("%H:%M"))
         file.write(showlistf)
     
     # send file to Discord in message
@@ -212,6 +212,7 @@ async def importlist(ctx, array=None):
 async def kill(ctx):
     role = discord.utils.get(ctx.guild.roles, name="Executive Staff")
     if role in ctx.author.roles:
+        print(f"Bot killed by {ctx.message.author}")
         await ctx.send(f'I have been slain by {ctx.message.author}...')
         exit()
     else:
