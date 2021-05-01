@@ -153,7 +153,7 @@ async def shows(ctx):
         return
     response = ""
     for i in range(0, len(showlist)):
-        appended = "**{}**: **{}** by DJ **{}** on **{}s** from **{}** to **{}**\n".format(i, showlist[i].name, showlist[i].dj, showlist[i].day, showlist[i].starttime, showlist[i].endtime)
+        appended = "**{}**: **{}** by DJ **{}** on **{}s** from **{}** to **{}**\n".format(i, showlist[i].name, showlist[i].dj, showlist[i].day, datetime.strptime(showlist[i].starttime, "%H:%M").strftime("%I:%M %p"), datetime.strptime(showlist[i].endtime, "%H:%M").strftime("%I:%M %p"))
         response += appended
     await ctx.send(embed=discord.Embed(colour=discord.Colour(0x00ffff), description=response))
     
