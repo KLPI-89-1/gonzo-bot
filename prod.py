@@ -24,6 +24,7 @@ loyal_listener = '<@&830141470345920544>'
 alerts_channel = 830121001450471475
 
 DEBUG = False
+WAIT = True
 
 # lol just gonna slap this here so i can use it
 def delete_element(list_object, pos):
@@ -87,13 +88,15 @@ async def checker():
     if len(showlist) >= 1:
         if DEBUG == True:
             print("Checking showlists now...")
-        for i in showlist:
-            if i.day == calendar.day_name[datetime.now().weekday()]:
-                if int(datetime.strptime(i.starttime, "%H:%M").strftime("%H:%M")[0:2]) == datetime.now().hour:
-                    if datetime.now().minute == 0:
+        if datetime.now().minute == 0:
+            for i in showlist:
+                if i.day == calendar.day_name[datetime.now().weekday()]:
+                    if int(datetime.strptime(i.starttime, "%H:%M").strftime("%H:%M")[0:2]) == datetime.now().hour:
                         channel = client.get_channel(alerts_channel)
                         await channel.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description=ping_loyal(i)))
                         break
+        else:
+            print("Not on the hour...")
     else:
         if DEBUG == True:
             print("Tried to enter loop, but showlist is empty... waiting for one minute")
@@ -116,7 +119,7 @@ def ping_loyal(show):
 
 @checker.before_loop
 async def before_checker():
-    while (datetime.now().second != 0 and DEBUG == False):
+    while (datetime.now().second != 0 and WAIT == True):
         print(f"Current time: {datetime.now().hour}:{datetime.now().minute}:{datetime.now().second}... Need to be on the minute... Calibrating... (sleeping for 1 second)")
         time.sleep(1)
     print(f"\n\nIt is on the hour! Hello world!")
