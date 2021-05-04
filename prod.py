@@ -372,6 +372,7 @@ async def backup(ctx, filename=None):
 
 # Import backed up showlist
 @client.command(name="import")
+@commands.has_role("Program Director") 
 async def importlist(ctx, confirm=""):
     if ctx.message.channel.name == "specialty-show-staff":
         if (confirm != "confirm"):
