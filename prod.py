@@ -156,7 +156,7 @@ async def about(ctx):
 
 # Add loyal listener role
 @client.command(pass_context=True)
-async def addloyalr(ctx):
+async def addlistener(ctx):
     role = discord.utils.get(ctx.guild.roles, name="Loyal Listener")
     if role in ctx.author.roles:
         await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="You already have that role, silly."))
@@ -169,7 +169,7 @@ async def addloyalr(ctx):
 # Add loyal listener role
 @client.command(pass_context=True)
 @commands.has_role("Loyal Listener") 
-async def removeloyal(ctx):
+async def removelistener(ctx):
     member = ctx.message.author
     role = discord.utils.get(member.guild.roles, name="Loyal Listener")
     await member.remove_roles(role)
