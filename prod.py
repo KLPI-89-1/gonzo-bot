@@ -154,32 +154,54 @@ async def about(ctx):
 
 ##################################################################################################
 
+# Add loyal listener role
+@client.command(pass_context=True)
+async def addloyalr(ctx):
+    role = discord.utils.get(ctx.guild.roles, name="Loyal Listener")
+    if role in ctx.author.roles:
+        await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="You already have that role, silly."))
+    else:
+        member = ctx.message.author
+        role = discord.utils.get(member.guild.roles, name="Loyal Listener")
+        await member.add_roles(role)
+        await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="You have been given the loyal listener role!"))
+
+# Add loyal listener role
+@client.command(pass_context=True)
+@commands.has_role("Loyal Listener") 
+async def removeloyal(ctx):
+    member = ctx.message.author
+    role = discord.utils.get(member.guild.roles, name="Loyal Listener")
+    await member.remove_roles(role)
+    await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="You are no longer a loyal listener... :("))
+        
+##################################################################################################
+
 # Add shows
 @client.command()
+@commands.has_role("Program Director") 
 async def addshow(ctx, name=None, dj=None, day=None, starttime=None, endtime=None):
     if ctx.message.channel.name == "specialty-show-staff":
-        role = discord.utils.get(ctx.guild.roles, name="Program Director")
-        if role in ctx.author.roles:
-            if (name != None and endtime != None):
-                try:
-                    # im lazy and this is the easiest way to sanitize it and fix lowercase entries
-                    for i in range(-2, 8):
-                        if day.lower() == calendar.day_name[i].lower() and starttime >= "01:00" and endtime <= "23:59":
-                            newshow = Show(name, dj, calendar.day_name[i], starttime, endtime)
-                            showlist.append(newshow)
-                            await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="**The Specialty Show has been added.**\n\n**Show name**: {}\n**DJ name**: DJ {}\n**Day of week**: {}\n**Starting time**: {}\n**Ending time**: {}".format(name, dj, calendar.day_name[i], datetime.strptime(starttime, "%H:%M").strftime("%I:%M %p"), datetime.strptime(endtime, "%H:%M").strftime("%I:%M %p"))))
-                            break
-                    return
-                except:
-                    if DEBUG == True:
-                        print(f"!addshow tried and failed!\tShow name: {name} DJ: {dj} Day: {day} From: {starttime}-{endtime}")
-                    await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description='Invalid input.\nPlease add a show in this format:\n`!addshow "[name]" "[DJ name]" [weekday] [start time] [end time]`\n\nDo not include "DJ" in the DJ name.\nStart and end times must be in 24-hour format (e.g. 20:00 - 22:00)'))
-                    return
-            if DEBUG == True:
+        if (name != None and endtime != None):
+            try:
+                # im lazy and this is the easiest way to sanitize it and fix lowercase entries
+                for i in range(-2, 8):
+                    if day.lower() == calendar.day_name[i].lower() and starttime >= "01:00" and endtime <= "23:59":
+                        newshow = Show(name, dj, calendar.day_name[i], starttime, endtime)
+                        showlist.append(newshow)
+                        await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="**The Specialty Show has been added.**\n\n**Show name**: {}\n**DJ name**: DJ {}\n**Day of week**: {}\n**Starting time**: {}\n**Ending time**: {}".format(name, dj, calendar.day_name[i], datetime.strptime(starttime, "%H:%M").strftime("%I:%M %p"), datetime.strptime(endtime, "%H:%M").strftime("%I:%M %p"))))
+                        break
+                return
+            except:
+                if DEBUG == True:
+                    print(f"!addshow tried and failed!\tShow name: {name} DJ: {dj} Day: {day} From: {starttime}-{endtime}")
+                await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description='Invalid input.\nPlease add a show in this format:\n`!addshow "[name]" "[DJ name]" [weekday] [start time] [end time]`\n\nDo not include "DJ" in the DJ name.\nStart and end times must be in 24-hour format (e.g. 20:00 - 22:00)'))
+                return
+        if DEBUG == True:
                 print(f"!addshow failed! Garbage input provided!\tShow name: {name} DJ: {dj} Day: {day} From: {starttime}-{endtime}")
-            await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description='Invalid input.\nPlease add a show in this format:\n`!addshow "[name]" "[DJ name]" [weekday] [start time] [end time]`\n\nDo not include "DJ" in the DJ name.\nStart and end times must be in 24-hour format (e.g. 20:00 - 22:00)'))
-        else:
-            await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="Permission denied!"))
+        await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description='Invalid input.\nPlease add a show in this format:\n`!addshow "[name]" "[DJ name]" [weekday] [start time] [end time]`\n\nDo not include "DJ" in the DJ name.\nStart and end times must be in 24-hour format (e.g. 20:00 - 22:00)'))
+    else:
+        await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="Permission denied!"))
 
 ##################################################################################################
 
@@ -202,67 +224,54 @@ async def shows(ctx):
 
 # Remove shows
 @client.command()
+@commands.has_role("Program Director") 
 async def removeshow(ctx, arg=None):
     if ctx.message.channel.name == "specialty-show-staff":
-        role = discord.utils.get(ctx.guild.roles, name="Program Director")
-        if role in ctx.author.roles:
-            if not (len(showlist) <= 0 or arg == None):
-                try:
-                    if int(arg) <= len(showlist):
-                        await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="Removing **{}** at indice **{}**.".format(showlist[int(arg)].name, int(arg))))
-                        delete_element(showlist, int(arg))
-                        return
-                except:
-                    pass
-            await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="Invalid input.\nTo remove a show, please type `!removeshow [show number]`\nTo see list of shows and their numbers, please use **!shows**"))
-        else:
-            await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="Permission denied!"))
+        if not (len(showlist) <= 0 or arg == None):
+            try:
+                if int(arg) <= len(showlist):
+                    await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="Removing **{}** at indice **{}**.".format(showlist[int(arg)].name, int(arg))))
+                    delete_element(showlist, int(arg))
+                    return
+            except:
+                pass
+        await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="Invalid input.\nTo remove a show, please type `!removeshow [show number]`\nTo see list of shows and their numbers, please use **!shows**"))
 
 ##################################################################################################
 
 # Skip shows
 @client.command()
+@commands.has_any_role("Executive Staff","Specialty Show DJ") 
 async def skipshow(ctx, arg=None):
-    if ctx.message.channel.name == "specialty-show-staff":
-        role = discord.utils.get(ctx.guild.roles, name="Executive Staff")
-        role2 = discord.utils.get(ctx.guild.roles, name="Specialty Show DJ")
-        if role in ctx.author.roles or role2 in ctx.author.roles:
-            if (len(showlist) <= 0):
-                await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="There are no shows currently loaded!"))
-                return
-            elif (arg == None or int(arg) > len(showlist)-1):
-                await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="Invalid input!\nTo skip a show, use `!klpi skipshow [show number]`\nUse !klpi shows to find a show's number"))
-                return
-            else:
-                if showlist[int(arg)].skip == False:
-                    showlist[int(arg)].skip = True
-                    await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="**{}** has been set to skip the next time it plays.".format(showlist[int(arg)].name)))
-                else:
-                    await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="**{}** is already set to skip.\nNo change was made.".format(showlist[int(arg)].name)))
+    if (len(showlist) <= 0):
+        await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="There are no shows currently loaded!"))
+        return
+    elif (arg == None or int(arg) > len(showlist)-1):
+        await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="Invalid input!\nTo skip a show, use `!klpi skipshow [show number]`\nUse !klpi shows to find a show's number"))
+        return
+    else:
+        if showlist[int(arg)].skip == False:
+            showlist[int(arg)].skip = True
+            await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="**{}** has been set to skip the next time it plays.".format(showlist[int(arg)].name)))
         else:
-            await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="Permission denied!"))
+            await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="**{}** is already set to skip.\nNo change was made.".format(showlist[int(arg)].name)))
 
 # Resume shows
 @client.command()
+@commands.has_any_role("Executive Staff","Specialty Show DJ") 
 async def resumeshow(ctx, arg=None):
-    if ctx.message.channel.name == "specialty-show-staff":
-        role = discord.utils.get(ctx.guild.roles, name="Executive Staff")
-        role2 = discord.utils.get(ctx.guild.roles, name="Specialty Show DJ")
-        if role in ctx.author.roles or role2 in ctx.author.roles:
-            if (len(showlist) <= 0):
-                await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="There are no shows currently loaded!"))
-                return
-            elif (arg == None or int(arg) > len(showlist)):
-                await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="Invalid input!\nTo resume a show, use `!klpi resumeshow [show number]`\nUse !klpi shows to find a show's number"))
-                return
-            else:
-                if showlist[int(arg)].skip == True:
-                    showlist[int(arg)].skip = False
-                    await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="**{}** has been resumed and will not be skipped.".format(showlist[int(arg)].name)))
-                else:
-                    await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="**{}** is already scheduled for this week.\nNo change was made.".format(showlist[int(arg)].name)))
+    if (len(showlist) <= 0):
+        await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="There are no shows currently loaded!"))
+        return
+    elif (arg == None or int(arg) > len(showlist)):
+        await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="Invalid input!\nTo resume a show, use `!klpi resumeshow [show number]`\nUse !klpi shows to find a show's number"))
+        return
+    else:
+        if showlist[int(arg)].skip == True:
+            showlist[int(arg)].skip = False
+            await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="**{}** has been resumed and will not be skipped.".format(showlist[int(arg)].name)))
         else:
-            await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="Permission denied!"))
+            await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="**{}** is already scheduled for this week.\nNo change was made.".format(showlist[int(arg)].name)))
 
 ##################################################################################################
 
@@ -310,27 +319,20 @@ async def importlist(ctx, array=None):
 ##################################################################################################
 
 @client.command()
+@commands.has_role("Program Director") 
 async def clearshowlist(ctx, password=None):
     if ctx.message.channel.name == "specialty-show-staff":
-        role = discord.utils.get(ctx.guild.roles, name="Program Director")
-        if role in ctx.author.roles:
-            if password == "confirm":
-                await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="The showlist has been wiped..."))
-                showlist = []
-            else:
-                await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="Are you **sure** you want to clear the showlist?\nPlease type `!klpi clearshowlist confirm` to clear the showlist."))
+        if password == "confirm":
+            await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="The showlist has been wiped..."))
+            showlist = []
         else:
-            print(f"{ctx.message.author} tried to clear the showlist... for some reason")
-            await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="Permission denied!"))
+            await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="Are you **sure** you want to clear the showlist?\nPlease type `!klpi clearshowlist confirm` to clear the showlist."))
 
 @client.command()
+@commands.has_role("Executive Staff") 
 async def kill(ctx):
-    role = discord.utils.get(ctx.guild.roles, name="Executive Staff")
-    if role in ctx.author.roles:
-        print(f"Bot killed by {ctx.message.author}")
-        await ctx.send(f'I have been slain by {ctx.message.author}...')
-        exit()
-    else:
-        print(f'{ctx.message.author} attempted to slay me...')
+    print(f"Bot killed by {ctx.message.author}")
+    await ctx.send(f'I have been slain by {ctx.message.author}...')
+    exit()
 
 client.run(api_token)
