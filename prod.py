@@ -12,7 +12,6 @@ from discord_token import api_token
 #from dev_token import dev_token
 
 # to do:
-#   - have it ask in #specialty-show-staff 30 minutes before show starts if show is going to happen
 #   - better export function...eventually
 
 #client = discord.Client()
