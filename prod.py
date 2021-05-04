@@ -1,6 +1,6 @@
 # stock libraries
 import time
-from datetime import date, datetime, timedelta
+from datetime import date, datetime
 import calendar
 from random import randint
 from os import listdir, chdir
@@ -308,7 +308,7 @@ def listshows():
         skip = ""
         if showlist[i].skip == True:
             skip = "~~"
-        appended = "{}**{}**: **{}** by DJ **{}** on **{}s** from **{}** to **{}**{}\n".format(skip, i, showlist[i].name, showlist[i].dj, showlist[i].day, datetime.strptime(showlist[i].starttime, "%H:%M").strftime("%-I %p"), datetime.strptime(showlist[i].endtime, "%H:%M").strftime("%-I %p"), skip)
+        appended = "{}**{}**: **{}** by DJ **{}** on **{}s** from **{}** to **{}**{}\n".format(skip, i, showlist[i].name, showlist[i].dj, showlist[i].day, datetime.strptime(showlist[i].starttime, "%H:%M").strftime("%#I %p"), datetime.strptime(showlist[i].endtime, "%H:%M").strftime("%#I %p"), skip)
         response += appended
     return response
     
