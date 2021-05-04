@@ -18,9 +18,9 @@ from discord_token import api_token
 #client = discord.Client()
 client = commands.Bot(command_prefix = '!klpi ')
 
-loyal_listener = '<@&830141470345920544>'
-show_staff_channel = 830141427438059591
-alerts_channel = 830121001450471475
+loyal_listener = '<@&765706831560835072>'
+show_staff_channel = 651883557181980682
+alerts_channel = 838979648356220938
 
 DEBUG = True
 WAIT = False
