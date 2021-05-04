@@ -10,10 +10,7 @@ from backupshowlist import backup_list
 # discord libraries
 import discord
 from discord.ext import tasks, commands
-
-# tokens
-from discord_token import api_token
-from dev_token import dev_token
+from discord_token import api_token, dev_token
 
 # to do:
 #   - better export function...eventually
@@ -29,7 +26,7 @@ client = commands.Bot(command_prefix = '!klpi ')
 # DEV = False
 
 DEBUG = True
-WAIT = False
+WAIT = True
 DEV = True
 
 if DEV == False:
