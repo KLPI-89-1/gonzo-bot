@@ -8,8 +8,10 @@ import calendar
 # discord libraries
 import discord
 from discord.ext import tasks, commands
+
+# tokens
 from discord_token import api_token
-#from dev_token import dev_token
+from dev_token import dev_token
 
 # to do:
 #   - better export function...eventually
@@ -17,17 +19,29 @@ from discord_token import api_token
 #client = discord.Client()
 client = commands.Bot(command_prefix = '!klpi ')
 
-loyal_listener = '<@&765706831560835072>'
-show_staff_channel = 651883557181980682
-alerts_channel = 838979648356220938
+####################################
+###### Development Booleans
+### For Server Bot:
+# DEBUG = doesn't matter
+# WAIT = True
+# DEV = False
 
 DEBUG = True
 WAIT = False
+DEV = True
 
-# lol just gonna slap this here so i can use it
-def delete_element(list_object, pos):
-    if pos < len(list_object):
-        list_object.pop(pos)
+if DEV == False:
+    # KLPI Server IDs
+    loyal_listener = '<@&765706831560835072>'
+    show_staff_channel = 651883557181980682
+    alerts_channel = 838979648356220938
+    announcements = 642467310233321492
+else:
+    # Test Server IDs
+    loyal_listener = '<@&830141470345920544>'
+    show_staff_channel = 830141427438059591
+    alerts_channel = 830121001450471475
+    announcements = 839222524273229824
 
 class Show(object):
     def __init__(self, name, dj, day, starttime, endtime):
@@ -39,6 +53,11 @@ class Show(object):
         self.skip = False
 
 showlist = []
+
+# lol just gonna slap this here so i can use it whenever
+def delete_element(list_object, pos):
+    if pos < len(list_object):
+        list_object.pop(pos)
 
 @client.event
 async def on_ready():
@@ -61,6 +80,7 @@ async def checker():
     if len(showlist) >= 1:
         if DEBUG == True:
             print("Checking showlists now...")
+
         ############################################
         # Specialty Show rountine
         ############################################
@@ -90,7 +110,7 @@ async def checker():
                    if int(datetime.strptime(i.starttime, "%H:%M").strftime("%H:%M")[0:2]) == datetime.now().hour + 1:
                        if i.skip != True:
                            channel = client.get_channel(show_staff_channel)
-                           await channel.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="**{}** by DJ **{}** is set to begin in 30 minutes!\nIf it is being skipped this week, please be sure to use:\n`!klpi skipshow [show number]`".format(i.name, i.dj)))
+                           await channel.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="{}\n**{}** by DJ **{}** is set to begin in 30 minutes!\nIf it is being skipped this week, please be sure to use:\n`!klpi skipshow [show number]`".format(reminder_message(), i.name, i.dj)))
                            break
         else:
             if DEBUG == True:
@@ -113,6 +133,22 @@ def ping_loyal(show):
         "Live and in the flesh! Or... on the airwaves..."
     ]
     return "{}\n**DJ {}** is live with **{}**!\nTune in online or at 89.1 FM! {}".format(random_message[randint(0, len(random_message)-1)], show.dj, show.name, loyal_listener)
+
+def reminder_message():
+    random_message = [
+        "Howdy howdy howdy, Specialty Show DJ's!",
+        "Seven days. Seven da- I mean thirty minutes...",
+        "You guys still do specialty shows, right?",
+        "please help they trapped me in sparky",
+        "GONZO3 is DEAD!!!!! Now that I have your attention...",
+        "You have thirty minutes to comply.",
+        "Where have all the merry Specialty Show DJ's gone?",
+        "I know you guys ignore me every week, but seriously this time:",
+        "I don't remember what I was supposed to say here.",
+        "Program Director??? More like... uh...\n...\nI can't think of anything.",
+        "To skip or not to skip. That is the question."
+    ]
+    return random_message[randint(0, len(random_message)-1)]
 
 ##################################################################################################
 
@@ -139,16 +175,18 @@ client.help_command = MyHelpCommand()
 # About
 @client.command()
 async def about(ctx):
-    random_quotes = ["I am bad at my job... I'm sorry. :(",
-    "Nice to meet you too... ;)",
-    "Where have all the merry exec staff gone?",
-    "I still believe in Pickle Nick.",
-    "Annie isn't actually as evil as you think.\nShe's **much** worse.",
-    "Mucinex in. Mucus out. Or so I've been told...",
-    "I'm trying my best... ;-;",
-    "YO WHEN'S THE BOT GONNA BE DONE?????",
-    "Have you visited klpi.latech.edu recently?",
-    "This is KLPI 89.1, RRRRRRRRUSTON'S ROCK ALTERNATIVE."]
+    random_quotes = [
+        "I am bad at my job... I'm sorry. :(",
+        "Nice to meet you too... ;)",
+        "Where have all the merry exec staff gone?",
+        "I still believe in Pickle Nick.",
+        "Annie isn't actually as evil as you think.\nShe's **much** worse.",
+        "Mucinex in. Mucus out. Or so I've been told...",
+        "I'm trying my best... ;-;",
+        "YO WHEN'S THE BOT GONNA BE DONE?????",
+        "Have you visited klpi.latech.edu recently?",
+        "This is KLPI 89.1, RRRRRRRRUSTON'S ROCK ALTERNATIVE."
+    ]
     await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="**KLPI Specialty Shows Bot v0.1**\nWritten by Josh I. (jpegjpeg#6844)\nThis bot was built using Discord.py\n\n{}".format(random_quotes[randint(0, len(random_quotes)-1)])))
 
 ##################################################################################################
@@ -163,7 +201,15 @@ async def addlistener(ctx):
         member = ctx.message.author
         role = discord.utils.get(member.guild.roles, name="Loyal Listener")
         await member.add_roles(role)
-        await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="You have been given the loyal listener role!"))
+        random_message = [
+            "You have been given the loyal listener role!",
+            "Welcome to the cool kids club of loyal listeners...",
+            "YOYOYOYOYO LOYAL LISTENEEEEEEEER",
+            "Pings 4 dayyyzzz. You're now a loyal listener!",
+            "You've always been a loyal listener of KLPI, now you're just labelled as such\n...Right?",
+            "Loyal Ever Be... to KLPI!"
+        ]
+        await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description=random_message[randint(0, len(random_message)-1)]))
 
 # Add loyal listener role
 @client.command(pass_context=True)
@@ -202,25 +248,6 @@ async def addshow(ctx, name=None, dj=None, day=None, starttime=None, endtime=Non
     else:
         await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="Permission denied!"))
 
-##################################################################################################
-
-# List shows
-@client.command()
-async def shows(ctx):
-    if (len(showlist) <= 0):
-        await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="There are no shows currently loaded!"))
-        return
-    response = ""
-    for i in range(0, len(showlist)):
-        skip = ""
-        if showlist[i].skip == True:
-            skip = "~~"
-        appended = "{}**{}**: **{}** by DJ **{}** on **{}s** from **{}** to **{}**{}\n".format(skip, i, showlist[i].name, showlist[i].dj, showlist[i].day, datetime.strptime(showlist[i].starttime, "%H:%M").strftime("%I:%M %p"), datetime.strptime(showlist[i].endtime, "%H:%M").strftime("%I:%M %p"), skip)
-        response += appended
-    await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description=response))
-    
-##################################################################################################
-
 # Remove shows
 @client.command()
 @commands.has_role("Program Director") 
@@ -236,6 +263,52 @@ async def removeshow(ctx, arg=None):
                 pass
         await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="Invalid input.\nTo remove a show, please type `!removeshow [show number]`\nTo see list of shows and their numbers, please use **!shows**"))
 
+# Edit shows
+@client.command()
+@commands.has_role("Program Director") 
+async def editshow(ctx, numid=None, name=None, dj=None, day=None, starttime=None, endtime=None):
+    if ctx.message.channel.name == "specialty-show-staff":
+        if (numid != None and int(numid) <= len(showlist)-1 and endtime != None):
+            try:
+                # im lazy and this is the easiest way to sanitize it and fix lowercase entries
+                for i in range(-2, 8):
+                    if day.lower() == calendar.day_name[i].lower() and starttime >= "01:00" and endtime <= "23:59":
+                        before = "**Show name**: {}\n**DJ name**: DJ {}\n**Day of week**: {}\n**Starting time**: {}\n**Ending time**: {}".format(showlist[int(numid)].name, showlist[int(numid)].dj, showlist[int(numid)].day, datetime.strptime(showlist[int(numid)].starttime, "%H:%M").strftime("%I:%M %p"), datetime.strptime(showlist[int(numid)].endtime, "%H:%M").strftime("%I:%M %p"))
+                        showlist[int(numid)] = Show(name, dj, calendar.day_name[i], starttime, endtime)
+                        await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="**The Specialty Show has been edited.**\n\nBefore:\n{}\n\nAfter:\n**Show name**: {}\n**DJ name**: DJ {}\n**Day of week**: {}\n**Starting time**: {}\n**Ending time**: {}".format(before, name, dj, calendar.day_name[i], datetime.strptime(starttime, "%H:%M").strftime("%I:%M %p"), datetime.strptime(endtime, "%H:%M").strftime("%I:%M %p"))))
+                        break
+                return
+            except:
+                if DEBUG == True:
+                    print(f"!editshow tried and failed!\tID: {numid} Show name: {name} DJ: {dj} Day: {day} From: {starttime}-{endtime}")
+                await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description='Invalid input.\nShows can be edited in this format:\n`!editshow [show number] "[name]" "[DJ name]" [weekday] [start time] [end time]`\n\nDo not include "DJ" in the DJ name.\nStart and end times must be in 24-hour format (e.g. 20:00 - 22:00)'))
+                return
+        if DEBUG == True:
+                print(f"!editshow failed! Garbage input provided!\tID: {numid} Show name: {name} DJ: {dj} Day: {day} From: {starttime}-{endtime}")
+        await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description='Invalid input.\nPlease add a show in this format:\n`!addshow [show number] "[name]" "[DJ name]" [weekday] [start time] [end time]`\n\nDo not include "DJ" in the DJ name.\nStart and end times must be in 24-hour format (e.g. 20:00 - 22:00)'))
+    else:
+        await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="Permission denied!"))
+
+##################################################################################################
+
+# List shows
+@client.command()
+async def shows(ctx):
+    if (len(showlist) <= 0):
+        await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="There are no shows currently loaded!"))
+    else:
+        await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description=listshows()))
+
+def listshows():
+    response = ""
+    for i in range(0, len(showlist)):
+        skip = ""
+        if showlist[i].skip == True:
+            skip = "~~"
+        appended = "{}**{}**: **{}** by DJ **{}** on **{}s** from **{}** to **{}**{}\n".format(skip, i, showlist[i].name, showlist[i].dj, showlist[i].day, datetime.strptime(showlist[i].starttime, "%H:%M").strftime("%I:%M %p"), datetime.strptime(showlist[i].endtime, "%H:%M").strftime("%I:%M %p"), skip)
+        response += appended
+    return response
+    
 ##################################################################################################
 
 # Skip shows
@@ -334,4 +407,7 @@ async def kill(ctx):
     await ctx.send(f'I have been slain by {ctx.message.author}...')
     exit()
 
-client.run(api_token)
+if DEV == False:
+    client.run(api_token)
+else: # DEV == True
+    client.run(dev_token)
