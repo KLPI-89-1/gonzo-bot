@@ -210,7 +210,7 @@ async def addlistener(ctx):
         ]
         await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description=random_message[randint(0, len(random_message)-1)]))
 
-# Add loyal listener role
+# Remove loyal listener role
 @client.command(pass_context=True)
 @commands.has_role("Loyal Listener") 
 async def removelistener(ctx):
@@ -259,8 +259,9 @@ async def removeshow(ctx, arg=None):
                     delete_element(showlist, int(arg))
                     return
             except:
+                print(f'!klpi removeshow {arg} failed!')
                 pass
-        await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), title="Invalid input.", description="To remove a show, please type `!removeshow [show number]`\nTo see list of shows and their numbers, please use **!shows**"))
+        await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), title="Invalid input.", description="To remove a show, please type `!removeshow [show number]`\nTo see list of shows and their numbers, please use **!klpi shows**"))
 
 # Edit shows
 @client.command()
@@ -296,13 +297,13 @@ async def editshow(ctx, numid=None, name=None, dj=None, day=None, starttime=None
 
 # List shows
 @client.command()
-async def shows(ctx):
+async def shows(ctx, day=None):
     if (len(showlist) <= 0):
         await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="There are no shows currently loaded!"))
     else:
-        await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), title="KLPI Specialty Shows", description=listshows()))
+        await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), title="KLPI Specialty Shows", description=listshows(day)))
 
-def listshows():
+def listshows(day=None):
     response = ""
     for i in range(0, len(showlist)):
         skip = ""
@@ -381,6 +382,7 @@ async def importlist(ctx, confirm=""):
             global showlist
             showlist = backup_list
             await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="The **Spring 2021 showlist** has been imported."))
+        # # this solution doesn't work, likely because of the bot's asynchronous nature?
         # files = listdir(path='./backups')
         # if (backup == None):
         #     await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description=printbackups(files)))
