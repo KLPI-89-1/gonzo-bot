@@ -25,8 +25,8 @@ client = commands.Bot(command_prefix = '!klpi ')
 # WAIT = True
 # DEV = False
 
-DEBUG = True
-WAIT = True
+DEBUG = False
+WAIT = False
 DEV = True
 
 if DEV == False:
@@ -57,6 +57,19 @@ showlist = []
 def delete_element(list_object, pos):
     if pos < len(list_object):
         list_object.pop(pos)
+
+# check if in #specialty-show-staff
+async def in_show_staff(ctx):
+    return ctx.channel.id == show_staff_channel
+
+# 0_0
+@client.event
+async def on_command(ctx):
+    print(f"{ctx.message.author}: {ctx.message.content}")
+
+@client.event
+async def on_command_error(ctx, error):
+    print(f"///// Command failed! {error}")
 
 @client.event
 async def on_ready():
@@ -186,12 +199,16 @@ async def about(ctx):
         "Have you visited klpi.latech.edu recently?",
         "This is KLPI 89.1, RRRRRRRRUSTON'S ROCK ALTERNATIVE."
     ]
-    await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), title="KLPI Specialty Shows Bot v0.15", description="Written by Josh I. (jpegjpeg#6844)\nThis bot was built using Discord.py\n\b{}".format(random_quotes[randint(0, len(random_quotes)-1)])))
+    embed=discord.Embed(colour=discord.Colour(0x002F8B), title="KLPI Specialty Shows Bot v0.16", description="Written by Josh I. (jpegjpeg#6844)\nThis bot was built using Discord.py\n")
+    rando = random_quotes[randint(0, len(random_quotes)-1)]
+    embed.set_footer(text=rando)
+    await ctx.send(embed=embed)
 
 ##################################################################################################
 
 # Add loyal listener role
 @client.command(pass_context=True)
+@commands.has_role(not "Loyal Listener")
 async def addlistener(ctx):
     role = discord.utils.get(ctx.guild.roles, name="Loyal Listener")
     if role in ctx.author.roles:
@@ -223,75 +240,71 @@ async def removelistener(ctx):
 
 # Add shows
 @client.command()
-@commands.has_role("Program Director") 
+@commands.has_role("Program Director")
+@commands.check(in_show_staff)
 async def addshow(ctx, name=None, dj=None, day=None, starttime=None, endtime=None):
-    if ctx.message.channel.name == "specialty-show-staff":
-        if (name != None and endtime != None):
-            try:
-                # im lazy and this is the easiest way to sanitize it and fix lowercase entries
-                for i in range(-2, 8):
-                    if day.lower() == calendar.day_name[i].lower() and starttime >= "01:00" and endtime <= "23:59":
-                        newshow = Show(name, dj, calendar.day_name[i], starttime, endtime)
-                        showlist.append(newshow)
-                        await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), title="The Specialty Show has been added.", description="**Show name**: {}\n**DJ name**: DJ {}\n**Day of week**: {}\n**Starting time**: {}\n**Ending time**: {}".format(name, dj, calendar.day_name[i], datetime.strptime(starttime, "%H:%M").strftime("%I:%M %p"), datetime.strptime(endtime, "%H:%M").strftime("%I:%M %p"))))
-                        break
-                return
-            except:
-                if DEBUG == True:
-                    print(f"!addshow tried and failed!\tShow name: {name} DJ: {dj} Day: {day} From: {starttime}-{endtime}")
-                await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description='Invalid input.\nPlease add a show in this format:\n`!addshow "[name]" "[DJ name]" [weekday] [start time] [end time]`\n\nDo not include "DJ" in the DJ name.\nStart and end times must be in 24-hour format (e.g. 20:00 - 22:00)'))
-                return
-        if DEBUG == True:
-                print(f"!addshow failed! Garbage input provided!\tShow name: {name} DJ: {dj} Day: {day} From: {starttime}-{endtime}")
-        await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), title="Invalid input.", description='Please add a show in this format:\n`!addshow "[name]" "[DJ name]" [weekday] [start time] [end time]`\n\nDo not include "DJ" in the DJ name.\nStart and end times must be in 24-hour format (e.g. 20:00 - 22:00)'))
-    else:
-        await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="Permission denied!"))
+    if (name != None and endtime != None):
+        try:
+            # im lazy and this is the easiest way to sanitize it and fix lowercase entries
+            for i in range(-2, 8):
+                if day.lower() == calendar.day_name[i].lower() and starttime >= "01:00" and endtime <= "23:59":
+                    newshow = Show(name, dj, calendar.day_name[i], starttime, endtime)
+                    showlist.append(newshow)
+                    await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), title="The Specialty Show has been added.", description="**Show name**: {}\n**DJ name**: DJ {}\n**Day of week**: {}\n**Starting time**: {}\n**Ending time**: {}".format(name, dj, calendar.day_name[i], datetime.strptime(starttime, "%H:%M").strftime("%I:%M %p"), datetime.strptime(endtime, "%H:%M").strftime("%I:%M %p"))))
+                    break
+            return
+        except:
+            if DEBUG == True:
+                print(f"!addshow tried and failed!\tShow name: {name} DJ: {dj} Day: {day} From: {starttime}-{endtime}")
+            await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description='Invalid input.\nPlease add a show in this format:\n`!addshow "[name]" "[DJ name]" [weekday] [start time] [end time]`\n\nDo not include "DJ" in the DJ name.\nStart and end times must be in 24-hour format (e.g. 20:00 - 22:00)'))
+            return
+    if DEBUG == True:
+            print(f"!addshow failed! Garbage input provided!\tShow name: {name} DJ: {dj} Day: {day} From: {starttime}-{endtime}")
+    await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), title="Invalid input.", description='Please add a show in this format:\n`!addshow "[name]" "[DJ name]" [weekday] [start time] [end time]`\n\nDo not include "DJ" in the DJ name.\nStart and end times must be in 24-hour format (e.g. 20:00 - 22:00)'))
 
 # Remove shows
 @client.command()
 @commands.has_role("Program Director") 
+@commands.check(in_show_staff)
 async def removeshow(ctx, arg=None):
-    if ctx.message.channel.name == "specialty-show-staff":
-        if not (len(showlist) <= 0 or arg == None):
-            try:
-                if int(arg) <= len(showlist):
-                    await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="Removing **{}** at indice **{}**.".format(showlist[int(arg)].name, int(arg))))
-                    delete_element(showlist, int(arg))
-                    return
-            except:
-                print(f'!klpi removeshow {arg} failed!')
-                pass
-        await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), title="Invalid input.", description="To remove a show, please type `!removeshow [show number]`\nTo see list of shows and their numbers, please use **!klpi shows**"))
+    if not (len(showlist) <= 0 or arg == None):
+        try:
+            if int(arg) <= len(showlist):
+                await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="Removing **{}** at indice **{}**.".format(showlist[int(arg)].name, int(arg))))
+                delete_element(showlist, int(arg))
+                return
+        except:
+            print(f'!klpi removeshow {arg} failed!')
+            pass
+    await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), title="Invalid input.", description="To remove a show, please type `!removeshow [show number]`\nTo see list of shows and their numbers, please use `!klpi shows`"))
 
 # Edit shows
 @client.command()
 @commands.has_role("Program Director") 
+@commands.check(in_show_staff)
 async def editshow(ctx, numid=None, name=None, dj=None, day=None, starttime=None, endtime=None):
-    if ctx.message.channel.name == "specialty-show-staff":
-        if (numid != None and int(numid) <= len(showlist)-1):
-            if (name == None and endtime == None):
-                await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), title='Template:', description="`!klpi editshow {} \"{}\" \"{}\" {} {} {}`".format(numid, showlist[int(numid)].name, showlist[int(numid)].dj, showlist[int(numid)].day, datetime.strptime(showlist[int(numid)].starttime, "%H:%M").strftime("%H:%M"), datetime.strptime(showlist[int(numid)].endtime, "%H:%M").strftime("%H:%M"))))
-            else:
-                try:
-                    # im lazy and this is the easiest way to sanitize it and fix lowercase entries
-                    for i in range(-2, 8):
-                        if day.lower() == calendar.day_name[i].lower() and starttime >= "01:00" and endtime <= "23:59":
-                            before = "**Show name**: {}\n**DJ name**: DJ {}\n**Day of week**: {}\n**Starting time**: {}\n**Ending time**: {}".format(showlist[int(numid)].name, showlist[int(numid)].dj, showlist[int(numid)].day, datetime.strptime(showlist[int(numid)].starttime, "%H:%M").strftime("%I:%M %p"), datetime.strptime(showlist[int(numid)].endtime, "%H:%M").strftime("%I:%M %p"))
-                            showlist[int(numid)] = Show(name, dj, calendar.day_name[i], starttime, endtime)
-                            await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), title="The Specialty Show has been edited.", description="\n\nBefore:\n{}\n\nAfter:\n**Show name**: {}\n**DJ name**: DJ {}\n**Day of week**: {}\n**Starting time**: {}\n**Ending time**: {}".format(before, name, dj, calendar.day_name[i], datetime.strptime(starttime, "%H:%M").strftime("%I:%M %p"), datetime.strptime(endtime, "%H:%M").strftime("%I:%M %p"))))
-                            break
-                    return
-                except:
-                    if DEBUG == True:
-                        print(f"!editshow tried and failed!\tID: {numid} Show name: {name} DJ: {dj} Day: {day} From: {starttime}-{endtime}")
-                    await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description='Invalid input.\nShows can be edited in this format:\n`!editshow [show number] "[name]" "[DJ name]" [weekday] [start time] [end time]`\n\nDo not include "DJ" in the DJ name.\nStart and end times must be in 24-hour format (e.g. 20:00 - 22:00)\n\nIf you need a template, simply type `!klpi editshow [show number]`'))
-                    return
+    if (numid != None and int(numid) <= len(showlist)-1):
+        if (name == None and endtime == None):
+            await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), title='Template:', description="`!klpi editshow {} \"{}\" \"{}\" {} {} {}`".format(numid, showlist[int(numid)].name, showlist[int(numid)].dj, showlist[int(numid)].day, datetime.strptime(showlist[int(numid)].starttime, "%H:%M").strftime("%H:%M"), datetime.strptime(showlist[int(numid)].endtime, "%H:%M").strftime("%H:%M"))))
         else:
-            if DEBUG == True:
-                    print(f"!editshow failed! Garbage input provided!\tID: {numid} Show name: {name} DJ: {dj} Day: {day} From: {starttime}-{endtime}")
-            await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description='Invalid input.\nShows can be edited in this format:\n`!addshow [show number] "[name]" "[DJ name]" [weekday] [start time] [end time]`\n\nDo not include "DJ" in the DJ name.\nStart and end times must be in 24-hour format (e.g. 20:00 - 22:00)\n\nIf you need a template, simply type `!klpi editshow [show number]`'))
+            try:
+                # im lazy and this is the easiest way to sanitize it and fix lowercase entries
+                for i in range(-2, 8):
+                    if day.lower() == calendar.day_name[i].lower() and starttime >= "01:00" and endtime <= "23:59":
+                        before = "**Show name**: {}\n**DJ name**: DJ {}\n**Day of week**: {}\n**Starting time**: {}\n**Ending time**: {}".format(showlist[int(numid)].name, showlist[int(numid)].dj, showlist[int(numid)].day, datetime.strptime(showlist[int(numid)].starttime, "%H:%M").strftime("%I:%M %p"), datetime.strptime(showlist[int(numid)].endtime, "%H:%M").strftime("%I:%M %p"))
+                        showlist[int(numid)] = Show(name, dj, calendar.day_name[i], starttime, endtime)
+                        await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), title="The Specialty Show has been edited.", description="\n\nBefore:\n{}\n\nAfter:\n**Show name**: {}\n**DJ name**: DJ {}\n**Day of week**: {}\n**Starting time**: {}\n**Ending time**: {}".format(before, name, dj, calendar.day_name[i], datetime.strptime(starttime, "%H:%M").strftime("%I:%M %p"), datetime.strptime(endtime, "%H:%M").strftime("%I:%M %p"))))
+                        break
+                return
+            except:
+                if DEBUG == True:
+                    print(f"!editshow tried and failed!\tID: {numid} Show name: {name} DJ: {dj} Day: {day} From: {starttime}-{endtime}")
+                await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description='Invalid input.\nShows can be edited in this format:\n`!editshow [show number] "[name]" "[DJ name]" [weekday] [start time] [end time]`\n\nDo not include "DJ" in the DJ name.\nStart and end times must be in 24-hour format (e.g. 20:00 - 22:00)\n\nIf you need a template, simply type `!klpi editshow [show number]`'))
+                return
     else:
-        await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="Permission denied!"))
+        if DEBUG == True:
+                print(f"!editshow failed! Garbage input provided!\tID: {numid} Show name: {name} DJ: {dj} Day: {day} From: {starttime}-{endtime}")
+        await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description='Invalid input.\nShows can be edited in this format:\n`!addshow [show number] "[name]" "[DJ name]" [weekday] [start time] [end time]`\n\nDo not include "DJ" in the DJ name.\nStart and end times must be in 24-hour format (e.g. 20:00 - 22:00)\n\nIf you need a template, simply type `!klpi editshow [show number]`'))
 
 ##################################################################################################
 
@@ -300,17 +313,49 @@ async def editshow(ctx, numid=None, name=None, dj=None, day=None, starttime=None
 async def shows(ctx, day=None):
     if (len(showlist) <= 0):
         await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="There are no shows currently loaded!"))
-    else:
-        await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), title="KLPI Specialty Shows", description=listshows(day)))
+        return
+
+    elif (day != None):
+        if day.capitalize() in calendar.day_name:
+            day_shows = listshows(day.capitalize())
+            if day_shows == "":
+                return
+            else:
+                await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), title="KLPI {} Specialty Shows".format(day.capitalize()), description=day_shows))
+                return
+        elif day.lower() == "today":
+            today = calendar.day_name[datetime.now().weekday()]
+            day_shows = listshows(today)
+            if day_shows == "":
+                await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="There are no specialty shows today!"))
+            else:
+                await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), title="Today's KLPI Specialty Shows", description=day_shows))
+            return
+
+    embed = discord.Embed(colour=discord.Colour(0x002F8B), title="KLPI Specialty Shows")
+    for i in range(-1, 6):
+        if listshows(calendar.day_name[i]) != "":
+            embed.add_field(name=calendar.day_name[i], value=listshows(calendar.day_name[i]), inline=False)
+    await ctx.send(embed=embed)        
 
 def listshows(day=None):
     response = ""
-    for i in range(0, len(showlist)):
-        skip = ""
-        if showlist[i].skip == True:
-            skip = "~~"
-        appended = "{}**{}**: **{}** by DJ **{}** on **{}s** from **{}** to **{}**{}\n".format(skip, i, showlist[i].name, showlist[i].dj, showlist[i].day, datetime.strptime(showlist[i].starttime, "%H:%M").strftime("%#I %p"), datetime.strptime(showlist[i].endtime, "%H:%M").strftime("%#I %p"), skip)
-        response += appended
+    if day != None:
+        if day.capitalize() in calendar.day_name:
+            for i in range(0, len(showlist)):
+                skip = ""
+                if showlist[i].day == day.capitalize():
+                    if showlist[i].skip == True:
+                        skip = "~~"
+                    appended = "{}**{}**: **{}** by DJ **{}** from **{}** to **{}**{}\n".format(skip, i, showlist[i].name, showlist[i].dj, datetime.strptime(showlist[i].starttime, "%H:%M").strftime("%#I %p"), datetime.strptime(showlist[i].endtime, "%H:%M").strftime("%#I %p"), skip)
+                    response += appended
+    else:
+        for i in range(0, len(showlist)):
+            skip = ""
+            if showlist[i].skip == True:
+                skip = "~~"
+            appended = "{}**{}**: **{}** by DJ **{}** on **{}s** from **{}** to **{}**{}\n".format(skip, i, showlist[i].name, showlist[i].dj, showlist[i].day, datetime.strptime(showlist[i].starttime, "%H:%M").strftime("%#I %p"), datetime.strptime(showlist[i].endtime, "%H:%M").strftime("%#I %p"), skip)
+            response += appended
     return response
     
 ##################################################################################################
@@ -318,6 +363,7 @@ def listshows(day=None):
 # Skip shows
 @client.command()
 @commands.has_any_role("Executive Staff","Specialty Show DJ") 
+@commands.check(in_show_staff)
 async def skipshow(ctx, arg=None):
     if (len(showlist) <= 0):
         await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="There are no shows currently loaded!"))
@@ -335,6 +381,7 @@ async def skipshow(ctx, arg=None):
 # Resume shows
 @client.command()
 @commands.has_any_role("Executive Staff","Specialty Show DJ") 
+@commands.check(in_show_staff)
 async def resumeshow(ctx, arg=None):
     if (len(showlist) <= 0):
         await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="There are no shows currently loaded!"))
@@ -353,49 +400,49 @@ async def resumeshow(ctx, arg=None):
 
 # Backup showlist
 @client.command(pass_context=True)
+@commands.check(in_show_staff)
 async def backup(ctx, filename=None):
-    if ctx.message.channel.name == "specialty-show-staff":
-        # check for shows first
-        if len(showlist) == 0:
-            await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="There are no shows currently loaded!"))
-        else:
-            # write to file
-            with open("backup.txt", "w") as file:
-                showlistf = ""
-                showlistf += "Backup generated at: {}\n\n".format(str(datetime.now()))
-                for i in showlist:
-                    showlistf += "!klpi addshow \"{}\" \"{}\" {} {} {}\n".format(i.name, i.dj, i.day, datetime.strptime(i.starttime, "%H:%M").strftime("%H:%M"), datetime.strptime(i.endtime, "%H:%M").strftime("%H:%M"))
-                file.write(showlistf)
-            
-            # send file to Discord in message
-            with open("backup.txt", "rb") as file:
-                await ctx.send("Here is the current showlist!", file=discord.File(file, "backup.txt"))
+    # check for shows first
+    if len(showlist) == 0:
+        await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="There are no shows currently loaded!"))
+    else:
+        # write to file
+        with open("backup.txt", "w") as file:
+            showlistf = ""
+            showlistf += "Backup generated at: {}\n\n".format(str(datetime.now()))
+            for i in showlist:
+                showlistf += "!klpi addshow \"{}\" \"{}\" {} {} {}\n".format(i.name, i.dj, i.day, datetime.strptime(i.starttime, "%H:%M").strftime("%H:%M"), datetime.strptime(i.endtime, "%H:%M").strftime("%H:%M"))
+            file.write(showlistf)
+        
+        # send file to Discord in message
+        with open("backup.txt", "rb") as file:
+            await ctx.send("Here is the current showlist!", file=discord.File(file, "backup.txt"))
 
 # Import backed up showlist
 @client.command(name="import")
 @commands.has_role("Program Director") 
+@commands.check(in_show_staff)
 async def importlist(ctx, confirm=""):
-    if ctx.message.channel.name == "specialty-show-staff":
-        if (confirm != "confirm"):
-                await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="There is currently a backup of the **Spring 2021 showlist**!\nAre you *sure* you want to overwrite the current show list?\nPlease use `!klpi import confirm` to proceed."))
-        else:
-            global showlist
-            showlist = backup_list
-            await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="The **Spring 2021 showlist** has been imported."))
-        # # this solution doesn't work, likely because of the bot's asynchronous nature?
-        # files = listdir(path='./backups')
-        # if (backup == None):
-        #     await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description=printbackups(files)))
-        # elif ((backup + '.py') in files):
-        #     if confirm != "confirm":
-        #         await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="**{}** is in the backups directory!\nAre you *sure* you want to overwrite the current show list?\nPlease use `!klpi import [backup] confirm` to proceed.".format(backup)))
-        #     else:
-        #         chdir('./backups')
-        #         imported = import_module(backup)
-        #         showlist = imported.newlist
-        #         chdir('..')
-        # else:
-        #     await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="Invalid input.\nPlease use `!klpi import [backup]` to import a backup."))
+    if (confirm != "confirm"):
+            await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="There is currently a backup of the **Spring 2021 showlist**!\nAre you *sure* you want to overwrite the current show list?\nPlease use `!klpi import confirm` to proceed."))
+    else:
+        global showlist
+        showlist = backup_list
+        await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="The **Spring 2021 showlist** has been imported."))
+    # # this solution doesn't work, likely because of the bot's asynchronous nature?
+    # files = listdir(path='./backups')
+    # if (backup == None):
+    #     await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description=printbackups(files)))
+    # elif ((backup + '.py') in files):
+    #     if confirm != "confirm":
+    #         await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="**{}** is in the backups directory!\nAre you *sure* you want to overwrite the current show list?\nPlease use `!klpi import [backup] confirm` to proceed.".format(backup)))
+    #     else:
+    #         chdir('./backups')
+    #         imported = import_module(backup)
+    #         showlist = imported.newlist
+    #         chdir('..')
+    # else:
+    #     await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="Invalid input.\nPlease use `!klpi import [backup]` to import a backup."))
 
 def printbackups(files):
     list = "**Available backups:**\n"
@@ -410,14 +457,14 @@ def printbackups(files):
 
 @client.command()
 @commands.has_role("Program Director") 
+@commands.check(in_show_staff)
 async def clearshowlist(ctx, password=None):
-    if ctx.message.channel.name == "specialty-show-staff":
-        if password == "confirm":
-            global showlist
-            showlist = []
-            await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="The showlist has been wiped..."))
-        else:
-            await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="Are you **sure** you want to clear the showlist?\nPlease type `!klpi clearshowlist confirm` to clear the showlist."))
+    if password == "confirm":
+        global showlist
+        showlist = []
+        await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="The showlist has been wiped..."))
+    else:
+        await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="Are you **sure** you want to clear the showlist?\nPlease type `!klpi clearshowlist confirm` to clear the showlist."))
 
 @client.command()
 @commands.has_role("Executive Staff") 
