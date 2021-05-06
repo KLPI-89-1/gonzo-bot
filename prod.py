@@ -15,7 +15,7 @@ from discord_token import api_token, dev_token
 # to do:
 #   - better export function...eventually
 
-#client = discord.Client()
+# client = discord.Client()
 client = commands.Bot(command_prefix = '!klpi ')
 
 ####################################
@@ -74,8 +74,7 @@ async def on_command_error(ctx, error):
 @client.event
 async def on_ready():
     print(f'Success! Logged in as {client.user}')
-    # now we're gonna sleep until we're on the hour!
-    # why? because im lazy and this is an easy way to calibrate the bot
+    await client.change_presence(status=discord.Status.online, activity=discord.Game("Specialty Shows")) # fun little thing :p
     checker.start()
 
 #@client.event
