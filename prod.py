@@ -63,13 +63,17 @@ async def in_show_staff(ctx):
     return ctx.channel.id == show_staff_channel
 
 # 0_0
-@client.event
-async def on_command(ctx):
-    print(f"{ctx.message.author}: {ctx.message.content}")
+# @client.event
+# async def on_command(ctx):
+#     print(f"#{ctx.message.channel} | {ctx.message.author}: {ctx.message.content}")
 
 @client.event
 async def on_command_error(ctx, error):
-    print(f"///// Command failed! {error}")
+    print(f"#{ctx.message.channel} | {ctx.message.author}: {ctx.message.content}\t...Command failed! {error}")
+
+@client.event
+async def on_command_completion(ctx):
+    print(f"#{ctx.message.channel} | {ctx.message.author}: {ctx.message.content}\t...Done!")
 
 @client.event
 async def on_ready():
