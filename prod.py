@@ -4,8 +4,8 @@ from datetime import date, datetime
 import calendar
 from random import randint
 from os import listdir, chdir
-from importlib import import_module
 from backupshowlist import backup_list
+#from importlib import import_module
 
 # discord libraries
 import discord
@@ -69,11 +69,13 @@ async def in_show_staff(ctx):
 
 @client.event
 async def on_command_error(ctx, error):
-    print(f"#{ctx.message.channel} | {ctx.message.author}: {ctx.message.content}\t...Command failed! {error}")
+    if DEBUG == True:
+        print(f"#{ctx.message.channel} | {ctx.message.author}: {ctx.message.content}\t...Command failed! {error}")
 
 @client.event
 async def on_command_completion(ctx):
-    print(f"#{ctx.message.channel} | {ctx.message.author}: {ctx.message.content}\t...Done!")
+    if DEBUG == True:
+        print(f"#{ctx.message.channel} | {ctx.message.author}: {ctx.message.content}\t...Done!")
 
 @client.event
 async def on_ready():
@@ -243,7 +245,7 @@ async def removelistener(ctx):
 
 # Add shows
 @client.command()
-@commands.has_role("Program Director")
+@commands.has_any_role("Program Director", "Computer Director") 
 @commands.check(in_show_staff)
 async def addshow(ctx, name=None, dj=None, day=None, starttime=None, endtime=None):
     if (name != None and endtime != None):
@@ -267,7 +269,7 @@ async def addshow(ctx, name=None, dj=None, day=None, starttime=None, endtime=Non
 
 # Remove shows
 @client.command()
-@commands.has_role("Program Director") 
+@commands.has_any_role("Program Director", "Computer Director") 
 @commands.check(in_show_staff)
 async def removeshow(ctx, arg=None):
     if not (len(showlist) <= 0 or arg == None):
@@ -283,7 +285,7 @@ async def removeshow(ctx, arg=None):
 
 # Edit shows
 @client.command()
-@commands.has_role("Program Director") 
+@commands.has_any_role("Program Director", "Computer Director") 
 @commands.check(in_show_staff)
 async def editshow(ctx, numid=None, name=None, dj=None, day=None, starttime=None, endtime=None):
     if (numid != None and int(numid) <= len(showlist)-1):
@@ -365,7 +367,7 @@ def listshows(day=None):
 
 # Skip shows
 @client.command()
-@commands.has_any_role("Executive Staff","Specialty Show DJ") 
+@commands.has_any_role("Executive Staff","Specialty Show DJ", "Computer Director") 
 @commands.check(in_show_staff)
 async def skipshow(ctx, arg=None):
     if (len(showlist) <= 0):
@@ -383,7 +385,7 @@ async def skipshow(ctx, arg=None):
 
 # Resume shows
 @client.command()
-@commands.has_any_role("Executive Staff","Specialty Show DJ") 
+@commands.has_any_role("Executive Staff","Specialty Show DJ","Computer Director") 
 @commands.check(in_show_staff)
 async def resumeshow(ctx, arg=None):
     if (len(showlist) <= 0):
@@ -423,7 +425,7 @@ async def backup(ctx, filename=None):
 
 # Import backed up showlist
 @client.command(name="import")
-@commands.has_role("Program Director") 
+@commands.has_any_role("Program Director", "Computer Director") 
 @commands.check(in_show_staff)
 async def importlist(ctx, confirm=""):
     if (confirm != "confirm"):
