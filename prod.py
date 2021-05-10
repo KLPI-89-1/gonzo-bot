@@ -25,19 +25,21 @@ client = commands.Bot(command_prefix = '!klpi ')
 # WAIT = True
 # DEV = False
 
-DEBUG = False
+DEBUG = True
 WAIT = False
 DEV = True
 
 if DEV == False:
     # KLPI Server IDs
     loyal_listener = '<@&765706831560835072>'
+    loyal_listener_id = 765706831560835072
     show_staff_channel = 651883557181980682
     alerts_channel = 838979648356220938
     announcements = 642467310233321492
 else:
     # Test Server IDs
     loyal_listener = '<@&830141470345920544>'
+    loyal_listener_id = 830141470345920544
     show_staff_channel = 830141427438059591
     alerts_channel = 830121001450471475
     announcements = 839222524273229824
@@ -213,7 +215,6 @@ async def about(ctx):
 
 # Add loyal listener role
 @client.command(pass_context=True)
-@commands.has_role(not "Loyal Listener")
 async def addlistener(ctx):
     role = discord.utils.get(ctx.guild.roles, name="Loyal Listener")
     if role in ctx.author.roles:
@@ -234,7 +235,7 @@ async def addlistener(ctx):
 
 # Remove loyal listener role
 @client.command(pass_context=True)
-@commands.has_role("Loyal Listener") 
+@commands.has_role(loyal_listener_id) 
 async def removelistener(ctx):
     member = ctx.message.author
     role = discord.utils.get(member.guild.roles, name="Loyal Listener")
