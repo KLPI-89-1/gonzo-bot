@@ -53,6 +53,16 @@ class Show(object):
         self.endtime = endtime
         self.skip = False
 
+class Event(object):
+    def __init__(self, name, description, month, day, year, starttime, endtime):
+        self.name = name
+        self.description = description
+        self.month = month
+        self.day = day
+        self.year = year
+        self.starttime = starttime
+        self.endtime = endtime
+
 showlist = []
 
 # lol just gonna slap this here so i can use it whenever
@@ -235,7 +245,7 @@ async def addlistener(ctx):
 
 # Remove loyal listener role
 @client.command(pass_context=True)
-@commands.has_role(loyal_listener_id) 
+@commands.has_role(loyal_listener_id)
 async def removelistener(ctx):
     member = ctx.message.author
     role = discord.utils.get(member.guild.roles, name="Loyal Listener")
