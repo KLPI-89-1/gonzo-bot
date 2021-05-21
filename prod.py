@@ -168,6 +168,7 @@ def ping_loyal(show):
         "Wink wonk.",
         "Guess what?",
         "Howdy howdy, Ruston",
+        "The FCC is always listening... and you should too!",
         "You guessed correctly!",
         "Live and in the flesh! Or... on the airwaves...",
         "Coming at you from the heart of Ruston..."
