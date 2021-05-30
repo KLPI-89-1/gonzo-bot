@@ -579,13 +579,13 @@ async def editevent(ctx, numid=None, name=None, month=None, day=None, year=None,
 @client.command()
 @commands.has_any_role("Program Director", "Computer Director", "General Manager")
 async def shutup(ctx):
-    await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="Alright, fine, sheesh.\nShow alerts have been disabled."))
+    await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), title="Alright, fine, sheesh.", description="Show alerts have been disabled."))
     SHOWALERTS = False
 
 @client.command()
 @commands.has_any_role("Program Director", "Computer Director", "General Manager")
 async def enablealerts(ctx):
-    await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), description="Aaaand we're back in business.\nShow alerts have been enabled!"))
+    await ctx.send(embed=discord.Embed(colour=discord.Colour(0x002F8B), title="Aaaand we're back in business.", description="Show alerts have been enabled!"))
     SHOWALERTS = True
 
 @client.command()
